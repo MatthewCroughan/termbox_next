@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <fcntl.h>
 #include <signal.h>
@@ -777,7 +778,9 @@ static void sigwinch_handler(int xxx)
 {
 	(void) xxx;
 	const int zzz = 1;
-	write(winch_fds[1], &zzz, sizeof(int));
+	if (write(winch_fds[1], &zzz, sizeof(int)) == -1) {
+          printf("write error: %d\n", errno);
+        }
 }
 
 static void update_size(void)
@@ -876,7 +879,9 @@ static int wait_fill_event(struct tb_event* event, struct timeval* timeout)
 		{
 			event->type = TB_EVENT_RESIZE;
 			int zzz = 0;
-			read(winch_fds[0], &zzz, sizeof(int));
+			if (read(winch_fds[0], &zzz, sizeof(int)) == -1) {
+                          printf("read error: %d\n", errno);
+                        }
 			buffer_size_change_request = 1;
 			get_term_size(&event->w, &event->h);
 			return TB_EVENT_RESIZE;

@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 #include "memstream.h"
 
 void memstream_init(struct memstream* s, int fd, void* buffer, size_t len)
@@ -13,7 +14,9 @@ void memstream_init(struct memstream* s, int fd, void* buffer, size_t len)
 
 void memstream_flush(struct memstream* s)
 {
-	write(s->file, s->data, s->pos);
+	if (write(s->file, s->data, s->pos) == -1) {
+          printf("write error: %d\n", errno);
+        }
 	s->pos = 0;
 }
 
